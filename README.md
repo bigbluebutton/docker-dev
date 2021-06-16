@@ -62,6 +62,16 @@ openssl x509 -req -in ${HOSTNAME}.csr -CA bbb-dev-ca.crt -CAkey bbb-dev-ca.key -
 cd
 ```
 
+## Docker setup
+
+The next script depends on having docker available to your user, so before proceeding, run the following command:
+
+```sh
+sudo usermod -aG docker `whoami`
+sudo reboot
+```
+
+
 ## Container setup
 
 This docker image is running a single container with BBB packages built from `develop` branch.
