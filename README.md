@@ -169,3 +169,5 @@ npm start
 ```
 
 That's all, open https://bbb-dev-01.test in your browser and enjoy.
+
+PS: if you see certificate error in your browser, you need to add the CA certificate in it's trusted certificates. Instructions for Chrome and Firefox can be found [here](https://github.com/bigbluebutton/docker-dev/issues/1)
