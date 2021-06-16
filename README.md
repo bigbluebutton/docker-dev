@@ -140,7 +140,7 @@ Run the script ( it will remove previously created dockers and create a new one)
 You can open a shell session with the following command:
 
 ```sh
-./.bbb/bbb-dev-01.sh
+~/.bbb/bbb-dev-01.sh
 ```
 
 ## Configure your local machine DNS
@@ -148,7 +148,7 @@ You can open a shell session with the following command:
 Your computer `/etc/hosts` file must be configured in order to resolve the name of your container. You can do it by running the following command:
 
 ```sh
-echo `./.bbb/ip-bbb-dev-01.sh | xargs -n 1 echo -n`" bbb-dev-01.test." | sudo tee -a /etc/hosts
+echo `~/.bbb/ip-bbb-dev-01.sh | xargs -n 1 echo -n`" bbb-dev-01.test." | sudo tee -a /etc/hosts
 ```
 
 ## Running HTML5 from source code
