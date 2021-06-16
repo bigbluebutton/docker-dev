@@ -102,7 +102,8 @@ cat ~/bbb-docker-dev-setup/$HOSTNAME.key > certs/privkey.pem
 
 cd
 BBB_SRC_FOLDER=$HOME/$NAME/bigbluebutton
-docker run -d --name=$NAME --hostname=$HOSTNAME --env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" --volume="/var/run/docker.sock:/var/run/docker.sock:rw" --cap-add="NET_ADMIN" --privileged --volume="$HOME/$NAME/certs/:/local/certs:rw" --volume="/sys/fs/cgroup:/sys/fs/cgroup:ro" --volume="$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" --volume=docker_in_docker$NAME:/var/lib/docker -t $IMAGE
+
+docker run -d --name=$NAME --hostname=$HOSTNAME --env="NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" --env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" --volume="/var/run/docker.sock:/var/run/docker.sock:rw" --cap-add="NET_ADMIN" --privileged --volume="$HOME/$NAME/certs/:/local/certs:rw" --volume="/sys/fs/cgroup:/sys/fs/cgroup:ro" --volume="$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" --volume=docker_in_docker$NAME:/var/lib/docker -t $IMAGE
 
 mkdir $HOME/.bbb/ &> /dev/null
 echo "docker exec -u bigbluebutton -w /home/bigbluebutton/ -it $NAME /bin/bash  -l" > $HOME/.bbb/$NAME.sh
