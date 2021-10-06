@@ -64,7 +64,7 @@ cd
 
 ## Docker setup
 
-The next script depends on having docker available to your user, so before proceeding, run the following command:
+The next script depends on having docker available to your user, so before proceeding, run the following command (note that a computer reboot is required):
 
 ```sh
 sudo usermod -aG docker `whoami`
