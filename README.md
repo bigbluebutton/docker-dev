@@ -82,7 +82,8 @@ Create a script in your home directory named `create_bbb.sh` with the following 
 #!/bin/bash
 NAME="bbb-dev-01"  # change here if you want a different name
 HOSTNAME="${NAME}.test"
-IMAGE=imdt/bigbluebutton:2.4.x-develop
+# IMAGE=imdt/bigbluebutton:2.4.x-develop # (for 2.4 development)
+IMAGE=imdt/bigbluebutton:2.5.x-develop # (for 2.5 development)
 
 # retag the commit to force a lookup but keep in cache
 docker image inspect $IMAGE &>/dev/null && ( docker image tag $IMAGE $IMAGE-previous ; docker image rm $IMAGE )
