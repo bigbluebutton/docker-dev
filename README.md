@@ -83,6 +83,7 @@ Create a script in your home directory named `create_bbb.sh` with the following 
 NAME="bbb-dev-01"  # change here if you want a different name
 HOSTNAME="${NAME}.test"
 # IMAGE=imdt/bigbluebutton:2.4.x-develop # (for 2.4 development)
+# IMAGE=imdt/bigbluebutton:2.6.x-develop # (for 2.6 development)
 IMAGE=imdt/bigbluebutton:2.5.x-develop # (for 2.5 development)
 
 # retag the commit to force a lookup but keep in cache
