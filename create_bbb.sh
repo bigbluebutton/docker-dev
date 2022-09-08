@@ -248,10 +248,6 @@ if [ -d ~/.oh-my-zsh ]; then
 fi
 
 
-#Set NODE_TLS_REJECT_UNAUTHORIZED=0 to make node allow image from self-signed certificate
-docker exec $NAME bash -c "echo NODE_TLS_REJECT_UNAUTHORIZED=0 >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf"
-docker exec $NAME bash -c "echo NODE_TLS_REJECT_UNAUTHORIZED=0 >> /etc/environment"
-
 echo "------------------"
 echo "Docker infos"
 echo "IP $DOCKERIP"
