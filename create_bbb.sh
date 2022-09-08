@@ -274,8 +274,3 @@ echo ""
 tput setaf 4; echo "or to run Akka/Mongo locally use: ssh $NAME-with-ports"; tput sgr0
 echo ""
 echo ""
-
-
-unplug your network cable
-tcpkill -- netlimiter
-    Identify the connection.
