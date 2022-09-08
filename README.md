@@ -118,15 +118,6 @@ cd ~/src/bbb-common-message
 ./deploy.sh
 ``` 
 
-#### Deploy on UBUNTU (for local development)
-*Script to deploy `common-message`, `common-web` and Akka `sbt update`*
-
-**Execute on Ubuntu terminal (not within Docker)**
-1. Save in ~/{container_name}/: [sbt_update_libs.sh](assets/sbt_update_libs.sh?raw=1)
-2. Go into the folder `cd ~/{container_name}`
-3. Set exec permissions `chmod +x sbt_update_libs.sh`
-4. Exec `./sbt_update_libs.sh` or `./sbt_update_libs.sh akka` (to update only common-msg and akka)
-
 ---
 ## BBB-Web (API)
 
@@ -155,7 +146,7 @@ cd ~/src/akka-bbb-apps/
 ```
 
 #### Running Akka on **IntelliJ IDEA**
-- [Requires Common-Message - Deploy on UBUNTU (for local development)](#deploy-on-ubuntu-for-local-development)
+- [Requires Common-Message](#common-message-required-for-bbb-web-and-akka)
 - Open bbb-docker-dev SSH connection appending `-with-ports` to the command *(it will create tunnel for Redis port 6379)*
 ```bash
 ssh {container_name}-with-ports
