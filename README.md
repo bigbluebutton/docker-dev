@@ -57,7 +57,7 @@ Parameters:
 - --image: Force an image different than default `--image=imdt/bigbluebutton:2.6.x-develop`
 ## Using the container
 
-## SSH session within the container
+### SSH session within the container
 ``` 
 ssh bbb26
 ``` 
@@ -67,6 +67,14 @@ Replace **bbb26** with the {name} param of `create_bbb.sh`
 That's all, open https://bbb26.test in your browser and enjoy.
 
 PS: if you see certificate error in your browser, you need to add the CA certificate in it's trusted certificates. Instructions for Chrome and Firefox can be found [here](https://github.com/bigbluebutton/docker-dev/issues/1)
+
+##  Removing an existing container
+``` 
+./create_bbb.sh {container_name} --remove
+``` 
+
+or rather you can remove a BBB docker image using `docker image rm imdt/bigbluebutton:2.6.x-develop --force`
+
 
 ---
 ## BBB-Conf

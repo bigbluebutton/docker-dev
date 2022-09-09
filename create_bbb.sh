@@ -5,6 +5,8 @@ IP=172.17.0.2
 IMAGE=imdt/bigbluebutton:2.6.x-develop
 GITHUB_USER=
 CERT_DIR=
+REMOVE_CONTAINER=0
+CONTAINER_IMAGE=
 
 for var in "$@"
 do
@@ -12,11 +14,13 @@ do
         NAME="$var"
     elif [[ $var == --image* ]] ; then
         IMAGE=${var#*=}
+        CONTAINER_IMAGE=$IMAGE
+    elif [[ $var == "--remove" ]] ; then
+        REMOVE_CONTAINER=1
     fi
 done
 
 echo "Container name: $NAME"
-echo "Using image $IMAGE"
 
 if [ ! $NAME ] ; then
     echo "Missing name: ./create_bbb.sh [--update] [--fork=github_user] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] {name}"
@@ -30,6 +34,7 @@ for container_id in $(docker ps -f name=$NAME -q) ; do
 done
 
 for container_id in $(docker ps -f name=$NAME -q -a); do
+    CONTAINER_IMAGE="$(docker inspect --format '{{ .Config.Image }}' $NAME)"
     echo "Removing container $NAME" 
     docker rm $container_id;
 done
@@ -38,6 +43,35 @@ if [ "$(docker volume ls | grep \docker_in_docker${NAME}$)" ]; then
     echo "Removing volume docker_in_docker$NAME"
     sudo docker volume rm docker_in_docker$NAME;
 fi
+
+if [ $REMOVE_CONTAINER == 1 ]; then
+  if [ $CONTAINER_IMAGE ]; then
+    echo
+    echo "----"
+    read -p "Do you want to remove the image $CONTAINER_IMAGE (y/n)? " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]];  then
+      docker image rm $CONTAINER_IMAGE --force
+      echo "Image $CONTAINER_IMAGE removed!"
+    fi
+  fi
+
+  if [ -d $HOME/$NAME ] ; then
+    echo
+    echo "----"
+    read -p "Do you want to remove all files from $HOME/$NAME (y/n)? " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]];  then
+      rm -rf $HOME/$NAME
+    fi
+  fi
+
+  echo "Container $NAME removed!"
+  exit 0
+fi
+
+
+echo "Using image $IMAGE"
 
 for var in "$@"
 do
