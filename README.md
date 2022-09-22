@@ -34,15 +34,15 @@ chmod +x create_bbb.sh
 3. Run the script ( it will remove previously created dockers and create a new one):
 Docker **bbb 2.6**
 ```
-./create_bbb.sh bbb26 --image=imdt/bigbluebutton:2.6.x-develop --update
+./create_bbb.sh --image=imdt/bigbluebutton:2.6.x-develop --update bbb26
 ```
 Docker **bbb 2.5**
 ```
-./create_bbb.sh bbb25 --image=imdt/bigbluebutton:2.5.x-develop --update
+./create_bbb.sh --image=imdt/bigbluebutton:2.5.x-develop --update bbb25
 ```
 Docker **bbb 2.4**
 ```
-./create_bbb.sh bbb24 --image=imdt/bigbluebutton:2.4.x-develop --update
+./create_bbb.sh --image=imdt/bigbluebutton:2.4.x-develop --update bbb24
 ```
 
 
@@ -70,7 +70,7 @@ PS: if you see certificate error in your browser, you need to add the CA certifi
 
 ##  Removing an existing container
 ``` 
-./create_bbb.sh {container_name} --remove
+./create_bbb.sh --remove {container_name}
 ``` 
 
 or rather you can remove a BBB docker image using `docker image rm imdt/bigbluebutton:2.6.x-develop --force`
