@@ -44,6 +44,12 @@ if [ "$(docker volume ls | grep \docker_in_docker${NAME}$)" ]; then
     sudo docker volume rm docker_in_docker$NAME;
 fi
 
+# Remove entries from ~/.ssh/config
+if [ -f ~/.ssh/config ] ; then
+  sed -i '/^Host '"$NAME"'$/,/^$/d' ~/.ssh/config
+  sed -i '/^Host '"$NAME-with-ports"'$/,/^$/d' ~/.ssh/config
+fi
+
 if [ $REMOVE_CONTAINER == 1 ]; then
   if [ $CONTAINER_IMAGE ]; then
     echo
@@ -252,10 +258,13 @@ ssh-keyscan -H "$DOCKERIP" >> ~/.ssh/known_hosts
 ssh-keyscan -H "$HOSTNAME" >> ~/.ssh/known_hosts
 # ssh-keyscan -H [hostname],[ip_address] >> ~/.ssh/known_hosts
 
+if [ ! -z $(tail -1 ~/.ssh/config) ] ; then
+  echo "" >> ~/.ssh/config
+fi
+
 if ! grep -q "\Host ${NAME}$" ~/.ssh/config ; then
-    echo "Adding alias $NAME to ~/.ssh/config"
-	echo "
-Host $NAME
+  echo "Adding alias $NAME to ~/.ssh/config"
+	echo "Host $NAME
     HostName $HOSTNAME
     User bigbluebutton
     Port 22
@@ -264,8 +273,7 @@ fi
 
 if ! grep -q "\Host ${NAME}-with-ports$" ~/.ssh/config ; then
     echo "Adding alias $NAME-with-ports to ~/.ssh/config"
-    echo "
-Host $NAME-with-ports
+    echo "Host $NAME-with-ports
     HostName $HOSTNAME
     User bigbluebutton
     Port 22
