@@ -1,4 +1,19 @@
 #!/bin/bash
+
+if ! command -v docker &> /dev/null
+then
+    echo "Docker not found! Required Docker 20 or greater"
+    exit
+fi
+
+DOCKER_VERSION=$(docker version -f "{{.Server.Version}}")
+DOCKER_VERSION_MAJOR=$(echo "$DOCKER_VERSION"| cut -d'.' -f 1)
+
+if [ ! "${DOCKER_VERSION_MAJOR}" -ge 20 ] ; then
+    echo "Invalid Docker version! Required Docker 20 or greater"
+    exit
+fi
+
 NAME=
 DOMAIN=test
 IP=172.17.0.2
