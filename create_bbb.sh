@@ -258,7 +258,7 @@ ssh-keyscan -H "$DOCKERIP" >> ~/.ssh/known_hosts
 ssh-keyscan -H "$HOSTNAME" >> ~/.ssh/known_hosts
 # ssh-keyscan -H [hostname],[ip_address] >> ~/.ssh/known_hosts
 
-if [ ! -z $(tail -1 ~/.ssh/config) ] ; then
+if [ ! -z "$(tail -1 ~/.ssh/config)" ] ; then
   echo "" >> ~/.ssh/config
 fi
 
