@@ -54,11 +54,6 @@ for container_id in $(docker ps -f name=$NAME -q -a); do
     docker rm $container_id;
 done
 
-if [ "$(docker volume ls | grep \docker_in_docker${NAME}$)" ]; then
-    echo "Removing volume docker_in_docker$NAME"
-    sudo docker volume rm docker_in_docker$NAME;
-fi
-
 # Remove entries from ~/.ssh/config
 if [ -f ~/.ssh/config ] ; then
   sed -i '/^Host '"$NAME"'$/,/^$/d' ~/.ssh/config
@@ -143,10 +138,6 @@ else
 fi
 
 cd
-
-#Shared folder to exchange data between local machine and container
-BBB_SHARED_FOLDER=$HOME/$NAME/shared
-mkdir -p $BBB_SHARED_FOLDER
 
 ###Certificate start -->
 mkdir $HOME/$NAME/certs/ -p
@@ -236,7 +227,7 @@ fi
 mkdir -p $HOME/.m2/repository/org/bigbluebutton
 mkdir -p $HOME/.ivy2/local/org.bigbluebutton
 
-docker run -d --name=$NAME --hostname=$HOSTNAME $NETWORKPARAMS -env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" -v "/var/run/docker.sock:/var/run/docker.sock:rw" --cap-add="NET_ADMIN" --privileged -v "$HOME/$NAME/certs/:/local/certs:rw" --cgroupns=host -v "$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" -v "$BBB_SHARED_FOLDER:/home/bigbluebutton/shared:rw" -v "$HOME/.m2/repository/org/bigbluebutton:/home/bigbluebutton/.m2/repository/org/bigbluebutton:rw" -v "$HOME/.ivy2/local/org.bigbluebutton:/home/bigbluebutton/.ivy2/local/org.bigbluebutton:rw" -v docker_in_docker$NAME:/var/lib/docker -t $IMAGE
+docker run -d --name=$NAME --hostname=$HOSTNAME $NETWORKPARAMS -env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" -v "/var/run/docker.sock:/docker.sock:rw" --cap-add="NET_ADMIN" --privileged -v "$HOME/$NAME/certs/:/local/certs:rw" --cgroupns=host -v "$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" -v "/tmp:/tmp:rw" -v "$HOME/.m2/repository/org/bigbluebutton:/home/bigbluebutton/.m2/repository/org/bigbluebutton:rw" -v "$HOME/.ivy2/local/org.bigbluebutton:/home/bigbluebutton/.ivy2/local/org.bigbluebutton:rw" -t $IMAGE
 
 mkdir $HOME/.bbb/ &> /dev/null
 echo "docker exec -u bigbluebutton -w /home/bigbluebutton/ -it $NAME /bin/bash  -l" > $HOME/.bbb/$NAME.sh
