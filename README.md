@@ -22,8 +22,6 @@ sudo usermod -aG docker `whoami`
 sudo reboot
 ```
 
-- **For Ubuntu 22.04 users:** In our tests, `containerd` had to be downgraded to version 1.6.6 in order to have all features working properly. `sudo apt install containerd.io=1.6.6-1`.
-
 ## Container setup
 
 1. Save (right click, save as) the creation script in home directory (`~`): [create_bbb.sh](create_bbb.sh?raw=1)
