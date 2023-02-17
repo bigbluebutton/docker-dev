@@ -20,6 +20,7 @@ IP=172.17.0.2
 IMAGE=imdt/bigbluebutton:2.6.x-develop
 GITHUB_USER=
 CERT_DIR=
+CUSTOM_SCRIPT=
 REMOVE_CONTAINER=0
 CONTAINER_IMAGE=
 
@@ -110,6 +111,8 @@ do
         GITHUB_USER=${var#*=}
     elif [[ $var == --cert* ]] ; then
         CERT_DIR=${var#*=}
+    elif [[ $var == --custom-script* ]] ; then
+        CUSTOM_SCRIPT=${var#*=}
     elif [[ $var == --domain* ]] ; then
         DOMAIN=${var#*=}
     fi
@@ -228,6 +231,11 @@ mkdir -p $HOME/.m2/repository/org/bigbluebutton
 mkdir -p $HOME/.ivy2/local/org.bigbluebutton
 
 docker run -d --name=$NAME --hostname=$HOSTNAME $NETWORKPARAMS -env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" -v "/var/run/docker.sock:/docker.sock:rw" --cap-add="NET_ADMIN" --privileged -v "$HOME/$NAME/certs/:/local/certs:rw" --cgroupns=host -v "$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" -v "/tmp:/tmp:rw" -v "$HOME/.m2/repository/org/bigbluebutton:/home/bigbluebutton/.m2/repository/org/bigbluebutton:rw" -v "$HOME/.ivy2/local/org.bigbluebutton:/home/bigbluebutton/.ivy2/local/org.bigbluebutton:rw" -t $IMAGE
+
+if [ $CUSTOM_SCRIPT ] && [ -f $CUSTOM_SCRIPT ] ; then
+    echo "Executing $CUSTOM_SCRIPT on container $NAME"
+    cat $CUSTOM_SCRIPT | docker exec -i $NAME bash
+fi
 
 mkdir $HOME/.bbb/ &> /dev/null
 echo "docker exec -u bigbluebutton -w /home/bigbluebutton/ -it $NAME /bin/bash  -l" > $HOME/.bbb/$NAME.sh
