@@ -47,11 +47,12 @@ Docker **bbb 2.4**
 
 
 Parameters:
-`./create_bbb.sh [--update] [--fork=github_user] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] {name}`
+`./create_bbb.sh [--update] [--fork=github_user] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] [--custom-script=path/script.sh] {name}`
 - {name}: Name of the container (e.g `bbb26`) **(REQUIRED)**
 - --update: check for new image version `--update`
 - --domain: set the host domain (e.g `--domain=test`), default: `test`. BBB URL will be `https://{NAME} + {DOMAIN}`
 - --cert: specify the directory which contains a certificate (`fullchain.pem` and `privkey.pem`) (e.g `--cert=/tmp`) *(if absent a new certificate will be created)*
+- --custom-script: path of a shell script file to be executed immediately when the container is created (useful for setting some personal preferences for configs)
 - --ip: force container IP (e.g `--ip=172.17.0.2`)
 - --fork: Username in Github with bbb Fork `--fork=bigbluebutton`
 - --image: Force an image different than default `--image=imdt/bigbluebutton:2.6.x-develop`
