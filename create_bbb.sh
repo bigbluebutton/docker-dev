@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if ! command -v docker &> /dev/null
 then
     echo "Docker not found! Required Docker 20 or greater"
@@ -18,41 +20,62 @@ NAME=
 DOMAIN=test
 IP=172.17.0.2
 IMAGE=imdt/bigbluebutton:2.6.x-develop
+GITHUB_FORK_SKIP=0
 GITHUB_USER=
 CERT_DIR=
 CUSTOM_SCRIPT=
 REMOVE_CONTAINER=0
 CONTAINER_IMAGE=
+DOCKER_CUSTOM_PARAMS=""
+DOCKER_NETWORK_PARAMS=""
+
 
 for var in "$@"
 do
-    if [[ ! $var == *"--"* ]] && [ ! $NAME ]; then
+    if [[ ! "$var" == *"--"* ]] && [ ! $NAME ]; then
         NAME="$var"
-    elif [[ $var == --image* ]] ; then
+    elif [[ "$var" == --image* ]] ; then
         IMAGE=${var#*=}
         CONTAINER_IMAGE=$IMAGE
-    elif [[ $var == "--remove" ]] ; then
+    elif [[ "$var" == "--remove" ]] ; then
         REMOVE_CONTAINER=1
     fi
 done
 
-echo "Container name: $NAME"
-
 if [ ! $NAME ] ; then
-    echo "Missing name: ./create_bbb.sh [--update] [--fork=github_user] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] {name}"
+    echo ""
+    echo "Missing param name: ./create_bbb.sh [OPTION] {name}" 
+    echo ""
+    echo ""
+    echo "List of options:"
+    echo "--update"
+    echo "--fork-skip"
+    echo "--fork=github_user"
+    echo "--domain=domain_name"
+    echo "--ip=ip_address"
+    echo "--image=docker_image"
+    echo "--cert=certificate_dir"
+    echo "--custom-script=path/script.sh"
+    echo "--docker-custom-params=\"-v /tmp:/tmp:rw\""
+    echo "--docker-network-params=\"--net=host\""
+    echo ""
+    echo ""
     exit 1
 fi
 
+echo "Container name: $NAME"
 
-for container_id in $(docker ps -f name=$NAME -q) ; do 
-    echo "Killing current $NAME"
-    docker kill $container_id;
+#for container_id in $(docker ps -f name=$NAME -q) ; do 
+for container_name in $(docker ps --format '{{.Names}}' | grep -w "^$NAME$"); do
+    echo "Killing container $container_name"
+    docker kill $container_name;
 done
 
-for container_id in $(docker ps -f name=$NAME -q -a); do
-    CONTAINER_IMAGE="$(docker inspect --format '{{ .Config.Image }}' $NAME)"
+# for container_id in $(docker ps -f name=$NAME -q -a); do
+for container_name in $(docker ps -a --format '{{.Names}}' | grep -w "^$NAME$"); do
+    CONTAINER_IMAGE="$(docker inspect --format '{{ .Config.Image }}' $container_name)"
     echo "Removing container $NAME" 
-    docker rm $container_id;
+    docker rm $container_name;
 done
 
 # Remove entries from ~/.ssh/config
@@ -92,13 +115,13 @@ echo "Using image $IMAGE"
 
 for var in "$@"
 do
-    if [ $var == "--update" ] ; then
+    if [ "$var" == "--update" ] ; then
         echo "Checking for new version of image $IMAGE"
         docker image tag $IMAGE ${IMAGE}_previous
         docker image rm $IMAGE
         docker pull $IMAGE
         docker rmi ${IMAGE}_previous
-    elif [[ $var == --ip* ]] ; then
+    elif [[ "$var" == --ip* ]] ; then
         IP=${var#*=}
         if [[ $IP == 172.17.* ]] ; then
             echo "IP address can't start with 172.17"
@@ -107,14 +130,21 @@ do
         else
             echo "Setting IP to $IP"
         fi
-    elif [[ $var == --fork* ]] ; then
+    elif [ "$var" == "--fork-skip" ] ; then
+        GITHUB_FORK_SKIP=1
+    elif [[ "$var" == --fork* ]] ; then
         GITHUB_USER=${var#*=}
-    elif [[ $var == --cert* ]] ; then
+    elif [[ "$var" == --cert* ]] ; then
         CERT_DIR=${var#*=}
-    elif [[ $var == --custom-script* ]] ; then
+    elif [[ "$var" == --custom-script* ]] ; then
         CUSTOM_SCRIPT=${var#*=}
-    elif [[ $var == --domain* ]] ; then
+    elif [[ "$var" == --domain* ]] ; then
         DOMAIN=${var#*=}
+    elif [[ "$var" == --docker-custom-params* ]] ; then
+        DOCKER_CUSTOM_PARAMS=${var#*=}
+        echo "Custom params will be appended to 'docker run': $DOCKER_CUSTOM_PARAMS"
+    elif [[ "$var" == --docker-network-params* ]] ; then
+        DOCKER_NETWORK_PARAMS=${var#*=}
     fi
 done
 
@@ -123,7 +153,10 @@ HOSTNAME=$NAME.$DOMAIN
 
 
 BBB_SRC_FOLDER=$HOME/$NAME/bigbluebutton
-if [ -d $BBB_SRC_FOLDER ] ; then
+if [ $GITHUB_FORK_SKIP == 1 ]; then
+        mkdir -p $BBB_SRC_FOLDER
+        echo "Skipping 'git clone' of Bigbluebutton project"
+elif [ -d $BBB_SRC_FOLDER ] ; then
         echo "Directory $HOME/$NAME/bigbluebutton already exists, not initializing."
         sleep 2;
 else
@@ -219,9 +252,8 @@ else
 fi
 
 
-NETWORKPARAMS=""
-if [ $SUBNETNAME != "bridge" ] ; then
-    NETWORKPARAMS="--ip=$IP --network $SUBNETNAME"
+if [ $SUBNETNAME != "bridge" ] && [ $DOCKER_NETWORK_PARAMS == "" ] ; then
+    DOCKER_NETWORK_PARAMS="--ip=$IP --network $SUBNETNAME"
 fi
 
 
@@ -230,14 +262,14 @@ fi
 mkdir -p $HOME/.m2/repository/org/bigbluebutton
 mkdir -p $HOME/.ivy2/local/org.bigbluebutton
 
-docker run -d --name=$NAME --hostname=$HOSTNAME $NETWORKPARAMS -env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" -v "/var/run/docker.sock:/docker.sock:rw" --cap-add="NET_ADMIN" --privileged -v "$HOME/$NAME/certs/:/local/certs:rw" --cgroupns=host -v "$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" -v "/tmp:/tmp:rw" -v "$HOME/.m2/repository/org/bigbluebutton:/home/bigbluebutton/.m2/repository/org/bigbluebutton:rw" -v "$HOME/.ivy2/local/org.bigbluebutton:/home/bigbluebutton/.ivy2/local/org.bigbluebutton:rw" -t $IMAGE
+docker run -d --name=$NAME --hostname=$HOSTNAME $DOCKER_NETWORK_PARAMS $DOCKER_CUSTOM_PARAMS -env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" -v "/var/run/docker.sock:/docker.sock:rw" --cap-add="NET_ADMIN" --privileged -v "$HOME/$NAME/certs/:/local/certs:rw" --cgroupns=host -v "$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" -v "/tmp:/tmp:rw" -v "$HOME/.m2/repository/org/bigbluebutton:/home/bigbluebutton/.m2/repository/org/bigbluebutton:rw" -v "$HOME/.ivy2/local/org.bigbluebutton:/home/bigbluebutton/.ivy2/local/org.bigbluebutton:rw" -t $IMAGE
 
 if [ $CUSTOM_SCRIPT ] && [ -f $CUSTOM_SCRIPT ] ; then
     echo "Executing $CUSTOM_SCRIPT on container $NAME"
     cat $CUSTOM_SCRIPT | docker exec -i $NAME bash
 fi
 
-mkdir $HOME/.bbb/ &> /dev/null
+mkdir -p $HOME/.bbb/
 echo "docker exec -u bigbluebutton -w /home/bigbluebutton/ -it $NAME /bin/bash  -l" > $HOME/.bbb/$NAME.sh
 chmod 755 $HOME/.bbb/$NAME.sh
 
@@ -246,11 +278,13 @@ if [ ! -e ~/.ssh/id_rsa.pub ]; then
     yes '' | ssh-keygen -N ''
 fi
 
-
 docker exec -u bigbluebutton $NAME bash -c "mkdir -p ~/.ssh && echo $(cat ~/.ssh/id_rsa.pub) >> ~/.ssh/authorized_keys"
-
 sleep 5s
-if [ $SUBNETNAME == "bridge" ] ; then
+
+if [ "$DOCKER_NETWORK_PARAMS" == "--net=host" ] ; then
+    DOCKERIP="$(hostname -I | awk '{print $1}')"
+    echo "It seems you are using the param --net=host, the container will receive the same IP of the Host: $DOCKERIP"
+elif [ "$SUBNETNAME" == "bridge" ] ; then
     DOCKERIP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NAME)"
 else
     DOCKERIP="$(docker inspect --format '{{ .NetworkSettings.Networks.'"$SUBNETNAME"'.IPAddress }}' $NAME)"

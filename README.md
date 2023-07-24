@@ -32,6 +32,10 @@ chmod +x create_bbb.sh
 ```
 
 3. Run the script ( it will remove previously created dockers and create a new one):
+Docker **bbb 2.7**
+```
+./create_bbb.sh --image=imdt/bigbluebutton:2.7.x-develop --update bbb27
+```
 Docker **bbb 2.6**
 ```
 ./create_bbb.sh --image=imdt/bigbluebutton:2.6.x-develop --update bbb26
@@ -40,37 +44,38 @@ Docker **bbb 2.5**
 ```
 ./create_bbb.sh --image=imdt/bigbluebutton:2.5.x-develop --update bbb25
 ```
-Docker **bbb 2.4**
-```
-./create_bbb.sh --image=imdt/bigbluebutton:2.4.x-develop --update bbb24
-```
 
 
 Parameters:
-`./create_bbb.sh [--update] [--fork=github_user] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] [--custom-script=path/script.sh] {name}`
-- {name}: Name of the container (e.g `bbb26`) **(REQUIRED)**
+`./create_bbb.sh [--update] [--fork=github_user] [--fork-skip] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] [--custom-script=path/script.sh] [--docker-custom-params=""] [--docker-network-params=""] {name}`
+- {name}: Name of the container (e.g `bbb27`) **(REQUIRED)**
 - --update: check for new image version `--update`
 - --domain: set the host domain (e.g `--domain=test`), default: `test`. BBB URL will be `https://{NAME} + {DOMAIN}`
 - --cert: specify the directory which contains a certificate (`fullchain.pem` and `privkey.pem`) (e.g `--cert=/tmp`) *(if absent a new certificate will be created)*
 - --custom-script: path of a shell script file to be executed immediately when the container is created (useful for setting some personal preferences for configs)
 - --ip: force container IP (e.g `--ip=172.17.0.2`)
 - --fork: Username in Github with bbb Fork `--fork=bigbluebutton`
+- --fork-skip: Skip the step to clone Bigbluebutton project
 - --image: Force an image different than default `--image=imdt/bigbluebutton:2.6.x-develop`
+- --docker-custom-params: Append a custom param to `docker run`, for instance mount a directory from your host into the container `--docker-custom-params="-v $HOME/bbb27/shared:/home/bigbluebutton/shared:rw"`
+- --docker-network-params: Override the default param if necessary, for instance to make the container use the host's IP set `--docker-network-params="--net=host"`
 ## Using the container
 
 ### SSH session within the container
 ``` 
-ssh bbb26
+ssh bbb27
 ``` 
-Replace **bbb26** with the {name} param of `create_bbb.sh`
+Replace **bbb27** with the {name} param of `create_bbb.sh`
 
 
 ### Use `/tmp` to exchange files
 The directory `/tmp` is shared between the host and the container. So you can use this directory to exchange files between them.
 
+Alternatively, you can use the `--docker-custom-params` parameter to designate a different directory as the exchange location.
+
 ### Start using BigBlueButton
 
-That's all, open https://bbb26.test (or your custom `https://{name}.{domain}`) in your browser and enjoy.
+That's all, open https://bbb27.test (or your custom `https://{name}.{domain}`) in your browser and enjoy.
 
 PS: if you see certificate error in your browser, you need to add the CA certificate in it's trusted certificates. Instructions for Chrome and Firefox can be found [here](https://github.com/bigbluebutton/docker-dev/issues/1)
 
