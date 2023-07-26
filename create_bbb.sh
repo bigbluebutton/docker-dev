@@ -120,7 +120,7 @@ do
         docker image tag $IMAGE ${IMAGE}_previous
         docker image rm $IMAGE
         docker pull $IMAGE
-        docker rmi ${IMAGE}_previous
+        docker rmi -f ${IMAGE}_previous
     elif [[ "$var" == --ip* ]] ; then
         IP=${var#*=}
         if [[ $IP == 172.17.* ]] ; then
