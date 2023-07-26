@@ -116,11 +116,20 @@ echo "Using image $IMAGE"
 for var in "$@"
 do
     if [ "$var" == "--update" ] ; then
-        echo "Checking for new version of image $IMAGE"
-        docker image tag $IMAGE ${IMAGE}_previous
-        docker image rm $IMAGE
+        has_docker_image=$(docker image ls $IMAGE -q | wc -l)
+        if [[ "$has_docker_image" != "0" ]]; then
+            echo "Image '$IMAGE' available on your system, checking for newer version"
+            docker image tag $IMAGE ${IMAGE}_previous
+            docker image rm $IMAGE
+        else
+            echo "Image '$IMAGE' not available on your system, downloading it..."
+        fi
+        
         docker pull $IMAGE
-        docker rmi -f ${IMAGE}_previous
+	
+        if [[ "$has_docker_image" != "0" ]]; then
+            docker rmi -f ${IMAGE}_previous
+        fi
     elif [[ "$var" == --ip* ]] ; then
         IP=${var#*=}
         if [[ $IP == 172.17.* ]] ; then
