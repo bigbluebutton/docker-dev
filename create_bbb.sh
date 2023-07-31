@@ -307,11 +307,11 @@ fi
 sudo sed -i "/$HOSTNAME/d" /etc/hosts
 echo $DOCKERIP $HOSTNAME | sudo tee -a /etc/hosts
 
+touch ~/.ssh/known_hosts
 ssh-keygen -R "$HOSTNAME"
 ssh-keygen -R "$DOCKERIP"
 # ssh-keygen -R [hostname],[ip_address]
 
-touch ~/.ssh/known_hosts
 ssh-keyscan -H "$DOCKERIP" >> ~/.ssh/known_hosts
 ssh-keyscan -H "$HOSTNAME" >> ~/.ssh/known_hosts
 # ssh-keyscan -H [hostname],[ip_address] >> ~/.ssh/known_hosts
