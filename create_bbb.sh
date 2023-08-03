@@ -261,7 +261,7 @@ else
 fi
 
 
-if [ $SUBNETNAME != "bridge" ] && [ $DOCKER_NETWORK_PARAMS == "" ] ; then
+if [ $SUBNETNAME != "bridge" ] && [ "$DOCKER_NETWORK_PARAMS" == "" ] ; then
     DOCKER_NETWORK_PARAMS="--ip=$IP --network $SUBNETNAME"
 fi
 
