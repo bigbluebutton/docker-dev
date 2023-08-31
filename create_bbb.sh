@@ -213,7 +213,7 @@ else
     openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
 
     #Copy the CA to your trusted certificates ( so your browser will accept this certificate )
-    sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
+    sudo mkdir /usr/local/share/ca-certificates/bbb-dev/ -p
     sudo cp $HOME/$NAME/certs-source/bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
     sudo chmod 644 /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
     sudo update-ca-certificates
