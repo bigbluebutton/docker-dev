@@ -221,7 +221,7 @@ else
     #Generate a certificate for your first local BBB server
     cd $HOME/$NAME/certs-source/
     openssl genrsa -out ${HOSTNAME}.key 2048
-    rm ${HOSTNAME}.csr ${HOSTNAME}.crt ${HOSTNAME}.key
+    rm ${HOSTNAME}.csr ${HOSTNAME}.crt ${HOSTNAME}.key -f
     cat > ${HOSTNAME}.ext << EOF
 authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
