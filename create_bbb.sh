@@ -266,12 +266,14 @@ if [ $SUBNETNAME != "bridge" ] && [ "$DOCKER_NETWORK_PARAMS" == "" ] ; then
 fi
 
 
-#Create sbt publish folders to map in Docker
-#It will sync the sbt libs in host machine and docker container (useful for backend development)
-mkdir -p $HOME/.m2/repository/org/bigbluebutton
-mkdir -p $HOME/.ivy2/local/org.bigbluebutton
+#Sync cache dirs between host machine and Docker container (to speed up building time)
+mkdir -p $HOME/.m2 #Sbt publish
+mkdir -p $HOME/.ivy2 #Sbt publish
+mkdir -p $HOME/.cache #Maven
+mkdir -p $HOME/.gradle #Gradle
+mkdir -p $HOME/.npm #Npm
 
-docker run -d --name=$NAME --hostname=$HOSTNAME $DOCKER_NETWORK_PARAMS $DOCKER_CUSTOM_PARAMS -env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" -v "/var/run/docker.sock:/docker.sock:rw" --cap-add="NET_ADMIN" --privileged -v "$HOME/$NAME/certs/:/local/certs:rw" --cgroupns=host -v "$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" -v "/tmp:/tmp:rw" -v "$HOME/.m2/repository/org/bigbluebutton:/home/bigbluebutton/.m2/repository/org/bigbluebutton:rw" -v "$HOME/.ivy2/local/org.bigbluebutton:/home/bigbluebutton/.ivy2/local/org.bigbluebutton:rw" -t $IMAGE
+docker run -d --name=$NAME --hostname=$HOSTNAME $DOCKER_NETWORK_PARAMS $DOCKER_CUSTOM_PARAMS -env="container=docker" --env="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" --env="DEBIAN_FRONTEND=noninteractive" -v "/var/run/docker.sock:/docker.sock:rw" --cap-add="NET_ADMIN" --privileged -v "$HOME/$NAME/certs/:/local/certs:rw" --cgroupns=host -v "$BBB_SRC_FOLDER:/home/bigbluebutton/src:rw" -v "/tmp:/tmp:rw" -v "$HOME/.m2:/home/bigbluebutton/.m2:rw" -v "$HOME/.ivy2:/home/bigbluebutton/.ivy2:rw" -v "$HOME/.cache:/home/bigbluebutton/.cache:rw" -v "$HOME/.gradle:/home/bigbluebutton/.gradle:rw" -v "$HOME/.npm:/home/bigbluebutton/.npm:rw" -t $IMAGE
 
 if [ $CUSTOM_SCRIPT ] && [ -f $CUSTOM_SCRIPT ] ; then
     echo "Executing $CUSTOM_SCRIPT on container $NAME"
