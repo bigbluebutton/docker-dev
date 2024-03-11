@@ -19,7 +19,7 @@ fi
 NAME=
 DOMAIN=test
 IP=172.17.0.2
-IMAGE=imdt/bigbluebutton:2.6.x-develop
+IMAGE=imdt/bigbluebutton:3.0.x-develop
 GITHUB_FORK_SKIP=0
 GITHUB_USER=
 CERT_DIR=
@@ -331,15 +331,26 @@ if ! grep -q "\Host ${NAME}$" ~/.ssh/config ; then
 " >> ~/.ssh/config
 fi
 
+# Create tunnel for Redis (6379) and Mongodb (4101)
 if ! grep -q "\Host ${NAME}-with-ports$" ~/.ssh/config ; then
     echo "Adding alias $NAME-with-ports to ~/.ssh/config"
-    echo "Host $NAME-with-ports
+
+# Don't LocalForward ports case it's running on the host itself IP
+  if [ "$DOCKER_NETWORK_PARAMS" != "--net=host" ] ; then
+      echo "Host $NAME-with-ports
     HostName $HOSTNAME
     User bigbluebutton
     Port 22
     LocalForward 6379 localhost:6379
     LocalForward 4101 localhost:4101
 " >> ~/.ssh/config
+  else
+    echo "Host $NAME-with-ports
+    HostName $HOSTNAME
+    User bigbluebutton
+    Port 22
+" >> ~/.ssh/config
+  fi
 fi
 
 #Set Zsh as default and copy local bindkeys
