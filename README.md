@@ -32,6 +32,10 @@ chmod +x create_bbb.sh
 ```
 
 3. Run the script ( it will remove previously created dockers and create a new one):
+Docker **bbb 3.0**
+```
+./create_bbb.sh --image=imdt/bigbluebutton:3.0.x-develop --update bbb30
+```
 Docker **bbb 2.7**
 ```
 ./create_bbb.sh --image=imdt/bigbluebutton:2.7.x-develop --update bbb27
@@ -40,15 +44,11 @@ Docker **bbb 2.6**
 ```
 ./create_bbb.sh --image=imdt/bigbluebutton:2.6.x-develop --update bbb26
 ```
-Docker **bbb 2.5**
-```
-./create_bbb.sh --image=imdt/bigbluebutton:2.5.x-develop --update bbb25
-```
 
 
 Parameters:
 `./create_bbb.sh [--update] [--fork=github_user] [--fork-skip] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] [--custom-script=path/script.sh] [--docker-custom-params=""] [--docker-network-params=""] {name}`
-- {name}: Name of the container (e.g `bbb27`) **(REQUIRED)**
+- {name}: Name of the container (e.g `bbb30`) **(REQUIRED)**
 - --update: check for new image version `--update`
 - --domain: set the host domain (e.g `--domain=test`), default: `test`. BBB URL will be `https://{NAME} + {DOMAIN}`
 - --cert: specify the directory which contains a certificate (`fullchain.pem` and `privkey.pem`) (e.g `--cert=/tmp`) *(if absent a new certificate will be created)*
@@ -56,16 +56,18 @@ Parameters:
 - --ip: force container IP (e.g `--ip=172.17.0.2`)
 - --fork: Username in Github with bbb Fork `--fork=bigbluebutton`
 - --fork-skip: Skip the step to clone Bigbluebutton project
-- --image: Force an image different than default `--image=imdt/bigbluebutton:2.6.x-develop`
-- --docker-custom-params: Append a custom param to `docker run`, for instance mount a directory from your host into the container `--docker-custom-params="-v $HOME/bbb27/shared:/home/bigbluebutton/shared:rw"`
+- --image: Force an image different from default `--image=imdt/bigbluebutton:2.6.x-develop`
+- --docker-custom-params: Append a custom param to `docker run`,  for instance:
+  - mount a directory from your host into the container `--docker-custom-params="-v $HOME/bbb30/shared:/home/bigbluebutton/shared:rw"`
+  - run docker with limited resources (8 cores) `--docker-custom-params="--cpuset-cpus=0-7"`
 - --docker-network-params: Override the default param if necessary, for instance to make the container use the host's IP set `--docker-network-params="--net=host"`
 ## Using the container
 
 ### SSH session within the container
 ``` 
-ssh bbb27
+ssh bbb30
 ``` 
-Replace **bbb27** with the {name} param of `create_bbb.sh`
+Replace **bbb30** with the {name} param of `create_bbb.sh`
 
 
 ### Use `/tmp` to exchange files
@@ -75,7 +77,7 @@ Alternatively, you can use the `--docker-custom-params` parameter to designate a
 
 ### Start using BigBlueButton
 
-That's all, open https://bbb27.test (or your custom `https://{name}.{domain}`) in your browser and enjoy.
+That's all, open https://bbb30.test (or your custom `https://{name}.{domain}`) in your browser and enjoy.
 
 PS: if you see certificate error in your browser, you need to add the CA certificate in it's trusted certificates. Instructions for Chrome and Firefox can be found [here](https://github.com/bigbluebutton/docker-dev/issues/1)
 
@@ -189,4 +191,19 @@ cd ~/src/akka-bbb-apps/
 - To track the exchange of messages between applications 
 ```
 redis-cli psubscribe "*" | grep --line-buffered -v 'pmessage\|CheckRunningAndRecording\|MeetingInfoAnalyticsServiceMsg\|CheckAliveP\|GetUsersStatusToVoiceConfSysMsg\|SendCursorPosition\|DoLatencyTracerMsg'
+```
+
+## Simulate Dial-in user
+
+- Create a meeting and copy the Voice Bridge number
+
+![simulate-dial-in](https://github.com/bigbluebutton/docker-dev/assets/5660191/da17835f-fd49-4072-835f-e210e0c8cb75)
+
+
+Within the container run (replacing by the voice bridge you just copied):
+
+```
+VOICE_BRIDGE=76034
+cd /opt/sipp
+sudo sipp -sn uac_pcap -m 1 -aa -d 30000 -s $VOICE_BRIDGE "$(hostname -I | awk '{print $1}')":5060
 ```
