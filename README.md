@@ -98,6 +98,13 @@ Restart BBB: `sudo bbb-conf --restart`
 Check configs: `sudo bbb-conf --check`
 
 ---
+## Hasura (bbb-graphql-server)
+Console Url: https://bbb30.test/console (`{your bbb domain}`**`/console`**)
+
+Password: bigbluebutton
+
+---
+
 ## Troubleshooting
 
 In case of problems, you can update the packages by running:
