@@ -216,7 +216,14 @@ else
     sudo mkdir /usr/local/share/ca-certificates/bbb-dev/ -p
     sudo cp $HOME/$NAME/certs-source/bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
     sudo chmod 644 /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
-    sudo update-ca-certificates
+    
+    if command -v update-ca-certificates >/dev/null 2>&1; then
+        sudo update-ca-certificates
+    elif command -v update-ca-trust >/dev/null 2>&1; then
+        sudo update-ca-trust extract
+    else
+        echo "Warning: No certificate update tool found."
+    fi
 
     #Generate a certificate for your first local BBB server
     cd $HOME/$NAME/certs-source/
