@@ -291,12 +291,20 @@ mkdir -p $HOME/.bbb/
 echo "docker exec -u bigbluebutton -w /home/bigbluebutton/ -it $NAME /bin/bash  -l" > $HOME/.bbb/$NAME.sh
 chmod 755 $HOME/.bbb/$NAME.sh
 
-#Create ssh key if absent
-if [ ! -e ~/.ssh/id_rsa.pub ]; then
-    yes '' | ssh-keygen -N ''
+# Create SSH key if absent. Prefer ed25519 if available.
+if [ ! -e ~/.ssh/id_ed25519.pub ] && [ ! -e ~/.ssh/id_rsa.pub ]; then
+    echo "No SSH key found, generating ed25519 key pair."
+    ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519
 fi
 
-docker exec -u bigbluebutton $NAME bash -c "mkdir -p ~/.ssh && echo $(cat ~/.ssh/id_rsa.pub) >> ~/.ssh/authorized_keys"
+# Determine which public key to use.
+if [ -e ~/.ssh/id_ed25519.pub ]; then
+    SSH_PUB_KEY=$(cat ~/.ssh/id_ed25519.pub)
+elif [ -e ~/.ssh/id_rsa.pub ]; then
+    SSH_PUB_KEY=$(cat ~/.ssh/id_rsa.pub)
+fi
+
+docker exec -u bigbluebutton $NAME bash -c "mkdir -p ~/.ssh && echo '$SSH_PUB_KEY' >> ~/.ssh/authorized_keys"
 sleep 5s
 
 if [ "$DOCKER_NETWORK_PARAMS" == "--net=host" ] ; then
