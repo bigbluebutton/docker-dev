@@ -4,7 +4,7 @@ How to use Docker to setup a development environment for BigBlueButton
 
 ## Environment
 
-We're considering you are using a [Ubuntu 20.04 LTS](https://ubuntu.com/download/desktop) but other versions/distributions can work too.
+We're considering you are using a [Ubuntu 24.04 LTS](https://ubuntu.com/download/desktop) but other versions/distributions can work too.
 
 An internet connection is required. It can be a shared network ( no need to forward ports in your router ).
 
@@ -36,15 +36,6 @@ Docker **bbb 3.0**
 ```
 ./create_bbb.sh --image=imdt/bigbluebutton:3.0.x-develop --update bbb30
 ```
-Docker **bbb 2.7**
-```
-./create_bbb.sh --image=imdt/bigbluebutton:2.7.x-develop --update bbb27
-```
-Docker **bbb 2.6**
-```
-./create_bbb.sh --image=imdt/bigbluebutton:2.6.x-develop --update bbb26
-```
-
 
 Parameters:
 `./create_bbb.sh [--update] [--fork=github_user] [--fork-skip] [--domain=domain_name] [--ip=ip_address] [--image=docker_image] [--cert=certificate_dir] [--custom-script=path/script.sh] [--docker-custom-params=""] [--docker-network-params=""] {name}`
