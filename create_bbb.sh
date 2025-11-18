@@ -44,7 +44,7 @@ done
 
 if [ ! $NAME ] ; then
     echo ""
-    echo "Missing param name: ./create_bbb.sh [OPTION] {name}" 
+    echo "Missing param name: ./create_bbb.sh [OPTION] {name}"
     echo ""
     echo ""
     echo "List of options:"
@@ -65,7 +65,7 @@ fi
 
 echo "Container name: $NAME"
 
-#for container_id in $(docker ps -f name=$NAME -q) ; do 
+#for container_id in $(docker ps -f name=$NAME -q) ; do
 for container_name in $(docker ps --format '{{.Names}}' | grep -w "^$NAME$"); do
     echo "Killing container $container_name"
     docker kill $container_name;
@@ -74,7 +74,7 @@ done
 # for container_id in $(docker ps -f name=$NAME -q -a); do
 for container_name in $(docker ps -a --format '{{.Names}}' | grep -w "^$NAME$"); do
     CONTAINER_IMAGE="$(docker inspect --format '{{ .Config.Image }}' $container_name)"
-    echo "Removing container $NAME" 
+    echo "Removing container $NAME"
     docker rm $container_name;
 done
 
@@ -124,9 +124,9 @@ do
         else
             echo "Image '$IMAGE' not available on your system, downloading it..."
         fi
-        
+
         docker pull $IMAGE
-	
+
         if [[ "$has_docker_image" != "0" ]]; then
             docker rmi -f ${IMAGE}_previous
         fi
@@ -173,7 +173,7 @@ else
 
         if [ $GITHUB_USER ] ; then
             git clone git@github.com:$GITHUB_USER/bigbluebutton.git
-            
+
             echo "Adding Git Upstream to https://github.com/bigbluebutton/bigbluebutton.git"
             cd $HOME/$NAME/bigbluebutton
             git remote add upstream https://github.com/bigbluebutton/bigbluebutton.git
@@ -231,7 +231,7 @@ subjectAltName = @alt_names
 DNS.1 = ${HOSTNAME}
 EOF
 
-    openssl req -nodes -newkey rsa:2048 -keyout ${HOSTNAME}.key -out ${HOSTNAME}.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=${HOSTNAME}" -addext "subjectAltName = DNS:${HOSTNAME}" 
+    openssl req -nodes -newkey rsa:2048 -keyout ${HOSTNAME}.key -out ${HOSTNAME}.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=${HOSTNAME}" -addext "subjectAltName = DNS:${HOSTNAME}"
     openssl x509 -req -in ${HOSTNAME}.csr -CA bbb-dev-ca.crt -CAkey bbb-dev-ca.key -CAcreateserial -out ${HOSTNAME}.crt -days 825 -sha256 -passin file:bbb-dev-ca.pass -extfile ${HOSTNAME}.ext
 
     cd $HOME/$NAME/
@@ -296,7 +296,7 @@ if [ "$DOCKER_NETWORK_PARAMS" == "--net=host" ] ; then
     DOCKERIP="$(hostname -I | awk '{print $1}')"
     echo "It seems you are using the param --net=host, the container will receive the same IP of the Host: $DOCKERIP"
 elif [ "$SUBNETNAME" == "bridge" ] ; then
-    DOCKERIP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NAME)"
+    DOCKERIP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME)"
 else
     DOCKERIP="$(docker inspect --format '{{ .NetworkSettings.Networks.'"$SUBNETNAME"'.IPAddress }}' $NAME)"
 fi
@@ -366,7 +366,7 @@ echo "Docker infos"
 echo "IP $DOCKERIP"
 echo "Default user: bigbluebutton"
 echo "Default passwork: bigbluebutton"
-echo "" 
+echo ""
 echo ""
 docker exec -u bigbluebutton $NAME bash -c "bbb-conf --salt"
 echo ""
