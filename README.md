@@ -32,9 +32,15 @@ chmod +x create_bbb.sh
 ```
 
 3. Run the script ( it will remove previously created dockers and create a new one):
+
 Docker **bbb 3.0**
 ```
 ./create_bbb.sh --image=imdt/bigbluebutton:3.0.x-develop --update bbb30
+```
+
+Docker **bbb 4.0**
+```
+./create_bbb.sh --image=imdt/bigbluebutton:4.0.x-develop --update bbb40
 ```
 
 Parameters:
